@@ -20,12 +20,16 @@ use std::collections::HashMap;
 use std::net::SocketAddr;
 use std::rc::Rc;
 use std::time::Duration;
-use tokio::executor::current_thread;
+use tokio::runtime::current_thread;
 use tokio::net::TcpStream;
 use tokio::reactor::Handle;
 use tokio_codec::Framed;
 use websocket::OwnedMessage;
 use websocket::async::{Client, Server, MessageCodec};
+
+use hyper::header;
+
+header! { (XRealIp, "X-Real-IP") => [String] }
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct TwsServerOption {
@@ -81,7 +85,7 @@ impl TwsServer {
 
         // Bind the port first
         // this is a Result, we convert it to Future.
-        Server::bind(self.option.listen, &Handle::current())
+        Server::bind(self.option.listen, &Handle::default())
             .into_future()
             .chain_err(|| "Failed to bind to server")
             .map(clone!(logger, option; |server| {
@@ -102,8 +106,7 @@ impl TwsServer {
                 let mut addr = upgrade.stream.peer_addr().unwrap_or(addr);
                 if addr.ip().is_loopback() {
                     // Trust the "X-Real-IP" header from loopback interface
-                    let real_ip_res = upgrade.request.headers.get("x-real-ip").ok_or(())
-                        .and_then(|x| x.to_str().map_err(|_| ()))
+                    let real_ip_res = upgrade.request.headers.get::<XRealIp>().ok_or(())
                         .and_then(|x| x.parse().map_err(|_| ()));
                     if let Ok(real_ip) = real_ip_res {
                         addr.set_ip(real_ip);

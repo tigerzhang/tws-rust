@@ -20,7 +20,7 @@ use std::rc::Rc;
 use std::time::{Instant, Duration};
 use tokio_codec::{BytesCodec, Decoder, Framed};
 use tokio::net::TcpStream;
-use tokio::executor::current_thread;
+use tokio::runtime::current_thread;
 use tokio_timer;
 
 pub trait TwsServiceState<C: TwsConnection, U: TwsUdpConnection>: 'static + Sized {

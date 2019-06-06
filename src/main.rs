@@ -1,4 +1,3 @@
-#![feature(try_from)]
 
 extern crate base64;
 extern crate bytes;
@@ -15,6 +14,9 @@ extern crate tokio_timer;
 extern crate tokio_executor;
 extern crate tokio_codec;
 extern crate websocket;
+
+#[macro_use]
+extern crate hyper;
 
 #[macro_use]
 extern crate error_chain;

@@ -21,9 +21,8 @@ use std::collections::HashMap;
 use std::net::SocketAddr;
 use std::rc::Rc;
 use std::time::{Duration, Instant};
-use tokio::reactor::Handle;
 use tokio::net::{TcpListener, TcpStream};
-use tokio::executor::current_thread;
+use tokio::runtime::current_thread;
 use tokio_codec::Framed;
 use tokio_timer;
 use websocket::{ClientBuilder, OwnedMessage};
@@ -384,7 +383,7 @@ impl ClientSession {
             .into_future()
             .chain_err(|| "Parse failure")
             .and_then(move |builder| {
-                builder.async_connect(None, &Handle::current())
+                builder.async_connect(None)
                     .chain_err(|| "Connect failure")
             })
             .and_then(move |(client, _headers)| {
