@@ -40,7 +40,8 @@ pub struct TwsServerOption {
     #[serde(default = "util::default_no_udp")]
     pub no_udp: bool,
     #[serde(default = "util::default_udp_timeout")]
-    pub udp_timeout: u64
+    pub udp_timeout: u64,
+    pub accept_remotes: Vec<SocketAddr>,
 }
 
 /*
@@ -179,6 +180,12 @@ make_tws_service!(
         {
             let mut state = self.state.borrow_mut();
             do_log!(self.logger, INFO, "New session: {} <=> {}", state.client.unwrap(), addr);
+
+            if !self.option.accept_remotes.is_empty() && !self.option.accept_remotes.contains(&addr) {
+                do_log!(self.logger, WARNING, "Reject remote {}", addr);
+                self.check_handshaked();
+                return
+            }
 
             // Remote address is now available.
             state.remote = Some(addr);

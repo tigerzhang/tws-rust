@@ -44,6 +44,12 @@ subcommands:
             takes_value: true
             default_value: "60000"
             help: Time in milliseconds before closing idle UDP sockets
+        - accept_remotes:
+            long: accept_remotes
+            value_name: ACCEPT_REMOTES
+            takes_value: true
+            multiple: true
+            help: Only allow connect to these remote addresses when specified
   - client:
       about: Run in client mode
       args:

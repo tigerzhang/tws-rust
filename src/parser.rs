@@ -71,6 +71,11 @@ impl<'a> TryFrom<&'a ArgMatches<'a>> for TwsServerOption {
                 .parse()
                 .map_err(|_| "Invalid value of `udp_timeout`. Must be a number")?,
             no_udp: args.is_present("no_udp"),
+            accept_remotes: args.values_of("accept_remotes")
+                .unwrap_or_default()
+                .map(|v| v.parse::<std::net::SocketAddr>())
+                .collect::<Result<Vec<_>, _>>()
+                .map_err(|_| "Invalid value of `accept_remotes`.")?,
         })
     }
 }
